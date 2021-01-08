@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "LED_Monitor_Background",
+			"path": ".."
+		},
+		{
+			"name": "LED-NY-Strip",
+			"path": "../../LED-NY-Strip"
+		}
+	],
+	"settings": {}
+}
