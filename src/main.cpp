@@ -3,9 +3,6 @@
 #include <OneButton.h>
 
 #include "const.h"
-#include "Effect.h"
-#include "LinearEffect.h"
-#include "RadialEffect.h"
 
 CRGB leds[LED_COUNT];
 
@@ -18,11 +15,6 @@ OneButton buttonOk(PIN_OK, true, true);
 CRGB::HTMLColorCode colors[] = {CRGB::White, CRGB::OldLace, CRGB::LightYellow, CRGB::White, CRGB::Wheat, CRGB::WhiteSmoke, CRGB::AliceBlue, CRGB::OldLace, CRGB::Olive, CRGB::Azure, CRGB::Amethyst, CRGB::Gainsboro, CRGB::DarkGoldenrod, CRGB::Gold, CRGB::Red, CRGB::OrangeRed, CRGB::MediumPurple, CRGB::SeaGreen, CRGB::MediumVioletRed, CRGB::Orchid, CRGB::HotPink, CRGB::Honeydew, CRGB::FairyLight, CRGB::Fuchsia, CRGB::SandyBrown, CRGB::SkyBlue, CRGB::Chocolate, CRGB::Cornsilk, CRGB::PaleVioletRed, CRGB::Bisque, CRGB::BurlyWood, CRGB::MidnightBlue, CRGB::FireBrick, CRGB::GreenYellow, CRGB::Khaki, CRGB::LawnGreen, CRGB::LemonChiffon, CRGB::LightSalmon, CRGB::RoyalBlue, CRGB::Thistle, CRGB::Tan, CRGB::Teal, CRGB::LightGoldenrodYellow, CRGB::Indigo, CRGB::Ivory, CRGB::OliveDrab, CRGB::Plum};
 int position = 0;
 int brightness = LED_BRIGHTNESS;
-
-effects::Effect *effect;
-effects::LinearEffect linear;
-effects::RadialEffect radial;
-int pos = 0;
 
 void increaseBrightness()
 {
@@ -68,13 +60,7 @@ void nextMode()
 
 void okFunc()
 {
-  if(pos == 0){
-    pos++;
-    effect = &radial;
-  } else {
-    pos = 0;
-    effect = &linear;
-  }
+  
 }
 
 void setup()
@@ -102,14 +88,18 @@ void buttonTick()
   buttonOk.tick();
 }
 
-void loop()
-{
-  buttonTick();
-
+void linearLoop(){
   for (int i = 0; i < LED_COUNT; i++)
   {
     leds[i] = colors[position];
   }
+}
+
+void loop()
+{
+  buttonTick();
+
+  linearLoop();
 
   FastLED.setBrightness(brightness);
   FastLED.show(); // display this frame
