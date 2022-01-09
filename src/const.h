@@ -32,12 +32,23 @@
 #define MODE_CROSS 3
 #define MODE_CORNERS 4
 #define MODE_CENTER 5
+#define MODE_SMALL_SPOT 6
+#define MODE_MEDIUM_SPOT 7
+#define MODE_LARGE_SPOT 8
 
 #define MODE_DEFAULT MODE_FLAT
 
 #define FLAT_MODE_DEFAULT_POSITION 0
 #define CORNER_MODE_LED_COUNT 10
 #define CENTER_MODE_LED_COUNT 10
+
+#define SMALL_SPOT_MODE_SIZE LED_COUNT / 10
+#define MEDIUM_SPOT_MODE_SIZE LED_COUNT / 5
+#define LARGE_SPOT_MODE_SIZE LED_COUNT / 2
+
+#define SMALL_SPOT_MODE_DELAY 10
+#define MEDIUM_SPOT_MODE_DELAY 15
+#define LARGE_SPOT_MODE_DELAY 20
 
 #define lengthOf(x) (sizeof(x) / sizeof(x[0]))
 
@@ -48,6 +59,9 @@ byte modes[] = {
     MODE_CROSS,
     MODE_CORNERS,
     MODE_CENTER,
+    MODE_SMALL_SPOT,
+    MODE_MEDIUM_SPOT,
+    MODE_LARGE_SPOT,
 };
 
 long int colors[] = {

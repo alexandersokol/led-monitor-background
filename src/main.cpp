@@ -19,6 +19,8 @@ int previousModePosition;
 int brightness;
 
 byte position1 = 0;
+byte spotPosition = 0;
+unsigned long lastSpotUpdateTime = 0;
 
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 //----   FLAT MODE
@@ -353,6 +355,160 @@ void centerModeLoop()
 }
 
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   SMALL SPOT MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize small spot mode with inital values
+ */
+void smallSpotModeInit(boolean fromEeprom)
+{
+  flatModeInit(fromEeprom);
+}
+
+/**
+ * Small spot mode next action
+ */
+void smallSpotModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Small spot mode previous action
+ */
+void smallSpotModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Default spot mode loop function
+ */
+void spotModeLoop(unsigned int delay, int size)
+{
+  long currentTime = millis();
+  if (lastSpotUpdateTime == 0 || (currentTime - lastSpotUpdateTime) >= delay)
+  {
+    lastSpotUpdateTime = currentTime;
+
+    spotPosition++;
+    if (spotPosition >= LED_COUNT)
+    {
+      spotPosition = 0;
+    }
+  }
+
+  byte spotRange0Start = spotPosition;
+  byte spotRange0End = spotPosition + size;
+
+  byte spotRange1Start = 255;
+  byte spotRange1End = 255;
+
+  if (spotRange0End >= LED_COUNT)
+  {
+    spotRange1Start = 0;
+    spotRange1End = spotRange0End - LED_COUNT;
+  }
+
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i >= spotRange0Start && i <= spotRange0End)
+    {
+      leds[i] = colors[position1];
+    }
+    else if (i >= spotRange1Start && i <= spotRange1End)
+    {
+      leds[i] = colors[position1];
+    }
+    else
+    {
+      leds[i] = CRGB::Black;
+    }
+  }
+}
+
+/**
+ * Small spot mode led drawing loop
+ */
+void smallSpotModeLoop()
+{
+  spotModeLoop(SMALL_SPOT_MODE_DELAY, SMALL_SPOT_MODE_SIZE);
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   MEDIUM SPOT MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize nedium spot mode with inital values
+ */
+void mediumSpotModeInit(boolean fromEeprom)
+{
+  flatModeInit(fromEeprom);
+}
+
+/**
+ * Medium spot mode next action
+ */
+void mediumSpotModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Medium spot mode previous action
+ */
+void mediumSpotModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Medium spot mode led drawing loop
+ */
+void mediumSpotModeLoop()
+{
+  spotModeLoop(MEDIUM_SPOT_MODE_DELAY, MEDIUM_SPOT_MODE_SIZE);
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   LARGE SPOT MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize large spot mode with inital values
+ */
+void largeSpotModeInit(boolean fromEeprom)
+{
+  flatModeInit(fromEeprom);
+}
+
+/**
+ * Large spot mode next action
+ */
+void largeSpotModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Large spot mode previous action
+ */
+void largeSpotModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Large spot mode led drawing loop
+ */
+void largeSpotModeLoop()
+{
+  spotModeLoop(LARGE_SPOT_MODE_DELAY, LARGE_SPOT_MODE_SIZE);
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 
 /**
@@ -393,6 +549,18 @@ void ledModeLoop()
   {
     centerModeLoop();
   }
+  else if (currentMode == MODE_SMALL_SPOT)
+  {
+    smallSpotModeLoop();
+  }
+  else if (currentMode == MODE_MEDIUM_SPOT)
+  {
+    mediumSpotModeLoop();
+  }
+  else if (currentMode == MODE_LARGE_SPOT)
+  {
+    largeSpotModeLoop();
+  }
 }
 
 /**
@@ -424,6 +592,18 @@ void initCurrentMode(boolean readEeprom)
   else if (currentMode == MODE_CENTER)
   {
     centerModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_SMALL_SPOT)
+  {
+    smallSpotModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_MEDIUM_SPOT)
+  {
+    mediumSpotModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_LARGE_SPOT)
+  {
+    largeSpotModeInit(readEeprom);
   }
 }
 
@@ -488,6 +668,18 @@ void previous()
   {
     centerModePrevious();
   }
+  else if (currentMode == MODE_SMALL_SPOT)
+  {
+    smallSpotModePrevious();
+  }
+  else if (currentMode == MODE_MEDIUM_SPOT)
+  {
+    mediumSpotModePrevious();
+  }
+  else if (currentMode == MODE_LARGE_SPOT)
+  {
+    largeSpotModePrevious();
+  }
 }
 
 /**
@@ -519,6 +711,18 @@ void next()
   else if (currentMode == MODE_CENTER)
   {
     centerModeNext();
+  }
+  else if (currentMode == MODE_SMALL_SPOT)
+  {
+    smallSpotModeNext();
+  }
+  else if (currentMode == MODE_MEDIUM_SPOT)
+  {
+    mediumSpotModeNext();
+  }
+  else if (currentMode == MODE_LARGE_SPOT)
+  {
+    largeSpotModeNext();
   }
 }
 
