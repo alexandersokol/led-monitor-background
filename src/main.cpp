@@ -14,6 +14,8 @@ EncButton<EB_TICK, PIN_RIGHT> buttonNext;
 EncButton<EB_TICK, PIN_OK> buttonOk;
 
 int modePosition;
+int previousModePosition;
+
 int brightness;
 
 byte position1 = 0;
@@ -31,11 +33,23 @@ void flatModeInit(boolean fromEeprom)
   {
     position1 = readAddress(ADDRESS_DATA_1, FLAT_MODE_DEFAULT_POSITION);
   }
-  else
-  {
-    position1 = FLAT_MODE_DEFAULT_POSITION;
-  }
-  writeAddress(ADDRESS_DATA_1, position1);
+  // else
+  // {
+  //   int mode = modes[previousModePosition];
+
+  //   Serial.print("current mode position: ");
+  //   Serial.print(modePosition);
+  //   Serial.print(" previous: ");
+  //   Serial.println(previousModePosition);
+
+  //   if (mode == MODE_FLAT || mode == MODE_BOTTOM || mode == MODE_TOP || mode == MODE_CROSS){
+  //     Serial.println("No need to reinit color position");
+  //   }
+  //   {
+  //     position1 = FLAT_MODE_DEFAULT_POSITION;
+  //   }
+  // }
+  // writeAddress(ADDRESS_DATA_1, position1);
 }
 
 /**
@@ -88,15 +102,7 @@ void flatModeLoop()
  */
 void bottomModeInit(boolean fromEeprom)
 {
-  if (fromEeprom)
-  {
-    position1 = readAddress(ADDRESS_DATA_1, BOTTOM_MODE_DEFAULT_POSITION);
-  }
-  else
-  {
-    position1 = BOTTOM_MODE_DEFAULT_POSITION;
-  }
-  writeAddress(ADDRESS_DATA_1, position1);
+  flatModeInit(fromEeprom);
 }
 
 /**
@@ -123,7 +129,7 @@ void bottomModeLoop()
   int half = LED_COUNT / 2;
   for (int i = 0; i < LED_COUNT; i++)
   {
-    if (i > half)
+    if (i >= half)
     {
       leds[i] = CRGB::Black;
     }
@@ -143,15 +149,7 @@ void bottomModeLoop()
  */
 void topModeInit(boolean fromEeprom)
 {
-  if (fromEeprom)
-  {
-    position1 = readAddress(ADDRESS_DATA_1, TOP_MODE_DEFAULT_POSITION);
-  }
-  else
-  {
-    position1 = TOP_MODE_DEFAULT_POSITION;
-  }
-  writeAddress(ADDRESS_DATA_1, position1);
+  flatModeInit(fromEeprom);
 }
 
 /**
@@ -175,16 +173,181 @@ void topModePrevious()
  */
 void topModeLoop()
 {
-  int half = LED_COUNT / 2;
+  int half = (LED_COUNT / 2);
   for (int i = 0; i < LED_COUNT; i++)
   {
-    if (i < half)
+    if (i <= half)
     {
       leds[i] = CRGB::Black;
     }
     else
     {
       leds[i] = colors[position1];
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   CROSS MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize cross mode with inital values
+ */
+void crossModeInit(boolean fromEeprom)
+{
+  flatModeInit(fromEeprom);
+}
+
+/**
+ * Cross mode next action
+ */
+void crossModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Cross mode previous action
+ */
+void crossModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Cross mode led drawing loop
+ */
+void crossModeLoop()
+{
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i % 2 == 0)
+    {
+      leds[i] = CRGB::Black;
+    }
+    else
+    {
+      leds[i] = colors[position1];
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   CORNERS MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize corners mode with inital values
+ */
+void cornersModeInit(boolean fromEeprom)
+{
+  flatModeInit(fromEeprom);
+}
+
+/**
+ * Corners mode next action
+ */
+void cornersModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Corners mode previous action
+ */
+void cornersModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Corners mode led drawing loop
+ */
+void cornersModeLoop()
+{
+  int corner0Start = 0;
+  int corner0End = CORNER_MODE_LED_COUNT;
+
+  int corner1Start = (LED_COUNT / 2) - CORNER_MODE_LED_COUNT;
+  int corner1End = (LED_COUNT / 2) + CORNER_MODE_LED_COUNT;
+
+  int corner2Start = LED_COUNT - CORNER_MODE_LED_COUNT;
+  int corner2End = LED_COUNT;
+
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i >= corner0Start && i <= corner0End)
+    {
+      leds[i] = colors[position1];
+    }
+    else if (i >= corner1Start && i <= corner1End)
+    {
+      leds[i] = colors[position1];
+    }
+    else if (i >= corner2Start && i <= corner2End)
+    {
+      leds[i] = colors[position1];
+    }
+    else
+    {
+      leds[i] = CRGB::Black;
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   CENTER MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize center mode with inital values
+ */
+void centerModeInit(boolean fromEeprom)
+{
+  flatModeInit(fromEeprom);
+}
+
+/**
+ * Center mode next action
+ */
+void centerModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Corners mode previous action
+ */
+void centerModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Center mode led drawing loop
+ */
+void centerModeLoop()
+{
+  int center0Start = (LED_COUNT / 4) - CENTER_MODE_LED_COUNT;
+  int center0End = (LED_COUNT / 4) + CENTER_MODE_LED_COUNT;
+
+  int center1Start = (LED_COUNT - (LED_COUNT / 4)) - CENTER_MODE_LED_COUNT;
+  int center1End = (LED_COUNT - (LED_COUNT / 4)) + CENTER_MODE_LED_COUNT;
+
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i >= center0Start && i <= center0End)
+    {
+      leds[i] = colors[position1];
+    }
+    else if (i >= center1Start && i <= center1End)
+    {
+      leds[i] = colors[position1];
+    }
+    else
+    {
+      leds[i] = CRGB::Black;
     }
   }
 }
@@ -218,6 +381,18 @@ void ledModeLoop()
   {
     topModeLoop();
   }
+  else if (currentMode == MODE_CROSS)
+  {
+    crossModeLoop();
+  }
+  else if (currentMode == MODE_CORNERS)
+  {
+    cornersModeLoop();
+  }
+  else if (currentMode == MODE_CENTER)
+  {
+    centerModeLoop();
+  }
 }
 
 /**
@@ -237,6 +412,18 @@ void initCurrentMode(boolean readEeprom)
   else if (currentMode == MODE_TOP)
   {
     topModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_CROSS)
+  {
+    crossModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_CORNERS)
+  {
+    cornersModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_CENTER)
+  {
+    centerModeInit(readEeprom);
   }
 }
 
@@ -289,6 +476,18 @@ void previous()
   {
     topModePrevious();
   }
+  else if (currentMode == MODE_CROSS)
+  {
+    crossModePrevious();
+  }
+  else if (currentMode == MODE_CORNERS)
+  {
+    cornersModePrevious();
+  }
+  else if (currentMode == MODE_CENTER)
+  {
+    centerModePrevious();
+  }
 }
 
 /**
@@ -309,6 +508,18 @@ void next()
   {
     topModeNext();
   }
+  else if (currentMode == MODE_CROSS)
+  {
+    crossModeNext();
+  }
+  else if (currentMode == MODE_CORNERS)
+  {
+    cornersModeNext();
+  }
+  else if (currentMode == MODE_CENTER)
+  {
+    centerModeNext();
+  }
 }
 
 /**
@@ -316,6 +527,7 @@ void next()
  */
 void modeSwitch()
 {
+  previousModePosition = modePosition;
   modePosition++;
   if (modePosition >= lengthOf(modes))
   {
@@ -334,6 +546,9 @@ void modeSwitch()
  */
 void modeReset()
 {
+  position1 = 0;
+  writeAddress(ADDRESS_DATA_1, position1);
+
   initCurrentMode(false);
 }
 
@@ -378,6 +593,8 @@ void setup()
 
   brightness = readAddress(ADDRESS_BRIGHTNESS, BRIGHTNESS_DEFAULT);
   modePosition = readAddress(ADDRESS_MODE, MODE_DEFAULT);
+  previousModePosition = modePosition;
+
   initCurrentMode(true);
 }
 

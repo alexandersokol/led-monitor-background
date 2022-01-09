@@ -1,7 +1,7 @@
 #include <FastLED.h>
 #include <avr/eeprom.h>
 
-#define LED_COUNT 100
+#define LED_COUNT 110
 #define FRAMES_PER_SECOND 60
 #define CHIPSET WS2811
 #define COLOR_ORDER GRB
@@ -29,11 +29,15 @@
 #define MODE_FLAT 0
 #define MODE_BOTTOM 1
 #define MODE_TOP 2
+#define MODE_CROSS 3
+#define MODE_CORNERS 4
+#define MODE_CENTER 5
+
 #define MODE_DEFAULT MODE_FLAT
 
 #define FLAT_MODE_DEFAULT_POSITION 0
-#define BOTTOM_MODE_DEFAULT_POSITION 0
-#define TOP_MODE_DEFAULT_POSITION 0
+#define CORNER_MODE_LED_COUNT 10
+#define CENTER_MODE_LED_COUNT 10
 
 #define lengthOf(x) (sizeof(x) / sizeof(x[0]))
 
@@ -41,6 +45,9 @@ byte modes[] = {
     MODE_FLAT,
     MODE_BOTTOM,
     MODE_TOP,
+    MODE_CROSS,
+    MODE_CORNERS,
+    MODE_CENTER,
 };
 
 long int colors[] = {
