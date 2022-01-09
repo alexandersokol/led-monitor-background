@@ -27,13 +27,23 @@
 #define NO_DATA 255
 
 #define MODE_FLAT 0
+#define MODE_BOTTOM 1
+#define MODE_TOP 2
 #define MODE_DEFAULT MODE_FLAT
 
 #define FLAT_MODE_DEFAULT_POSITION 0
+#define BOTTOM_MODE_DEFAULT_POSITION 0
+#define TOP_MODE_DEFAULT_POSITION 0
 
 #define lengthOf(x) (sizeof(x) / sizeof(x[0]))
 
-int[] colors = {
+byte modes[] = {
+    MODE_FLAT,
+    MODE_BOTTOM,
+    MODE_TOP,
+};
+
+long int colors[] = {
     0xFFE4C4,
     0xFFFFFF,
 
@@ -173,7 +183,7 @@ int[] colors = {
     0xF8F8FF,
     0xD8BFD8,
     0xFFF0F5,
-}
+};
 
 void writeAddress(byte address, byte data)
 {

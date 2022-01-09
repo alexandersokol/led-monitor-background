@@ -1,29 +1,31 @@
 #include <Arduino.h>
 #include <FastLED.h>
-#include <OneButton.h>
+#include <EncButton.h>
 #include <avr/eeprom.h>
 
 #include "const.h"
 
 CRGB leds[LED_COUNT];
 
-OneButton buttonUp(PIN_UP, true, true);
-OneButton buttonDown(PIN_DOWN, true, true);
-OneButton buttonPrevious(PIN_LEFT, true, true);
-OneButton buttonNext(PIN_RIGHT, true, true);
-OneButton buttonOk(PIN_OK, true, true);
+EncButton<EB_TICK, PIN_UP> buttonUp;
+EncButton<EB_TICK, PIN_DOWN> buttonDown;
+EncButton<EB_TICK, PIN_LEFT> buttonPrevious;
+EncButton<EB_TICK, PIN_RIGHT> buttonNext;
+EncButton<EB_TICK, PIN_OK> buttonOk;
 
-CRGB::HTMLColorCode colors[] = {CRGB::White, CRGB::OldLace, CRGB::LightYellow, CRGB::White, CRGB::Wheat, CRGB::WhiteSmoke, CRGB::AliceBlue, CRGB::OldLace, CRGB::Olive, CRGB::Azure, CRGB::Amethyst, CRGB::Gainsboro, CRGB::DarkGoldenrod, CRGB::Gold, CRGB::Red, CRGB::OrangeRed, CRGB::MediumPurple, CRGB::SeaGreen, CRGB::MediumVioletRed, CRGB::Orchid, CRGB::HotPink, CRGB::Honeydew, CRGB::FairyLight, CRGB::Fuchsia, CRGB::SandyBrown, CRGB::SkyBlue, CRGB::Chocolate, CRGB::Cornsilk, CRGB::PaleVioletRed, CRGB::Bisque, CRGB::BurlyWood, CRGB::MidnightBlue, CRGB::FireBrick, CRGB::GreenYellow, CRGB::Khaki, CRGB::LawnGreen, CRGB::LemonChiffon, CRGB::LightSalmon, CRGB::RoyalBlue, CRGB::Thistle, CRGB::Tan, CRGB::Teal, CRGB::LightGoldenrodYellow, CRGB::Indigo, CRGB::Ivory, CRGB::OliveDrab, CRGB::Plum};
-
-int currentMode;
+int modePosition;
 int brightness;
 
 byte position1 = 0;
 
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   FLAT MODE
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 
-void initFlatMode(boolean fromEeprom)
+/**
+ * Initialize flat mode with inital values
+ */
+void flatModeInit(boolean fromEeprom)
 {
   if (fromEeprom)
   {
@@ -36,6 +38,9 @@ void initFlatMode(boolean fromEeprom)
   writeAddress(ADDRESS_DATA_1, position1);
 }
 
+/**
+ * Flat mode next action
+ */
 void flatModeNext()
 {
   position1++;
@@ -44,22 +49,28 @@ void flatModeNext()
     position1 = 0;
   }
   writeAddress(ADDRESS_DATA_1, position1);
-  Serial.print("Flat position Increace: ");
+  Serial.print("Position Increace: ");
   Serial.println(position1, DEC);
 }
 
+/**
+ * Flat mode previous action
+ */
 void flatModePrevious()
 {
   position1--;
-  if (position1 == -1)
+  if (position1 == 255)
   {
     position1 = lengthOf(colors) - 1;
   }
   writeAddress(ADDRESS_DATA_1, position1);
-  Serial.print("Flat position Decreace: ");
+  Serial.print("Position Decreace: ");
   Serial.println(position1, DEC);
 }
 
+/**
+ * Flat mode led drawing loop
+ */
 void flatModeLoop()
 {
   for (int i = 0; i < LED_COUNT; i++)
@@ -69,21 +80,163 @@ void flatModeLoop()
 }
 
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   BOTTOM MODE
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 
+/**
+ * Initialize bottom mode with inital values
+ */
+void bottomModeInit(boolean fromEeprom)
+{
+  if (fromEeprom)
+  {
+    position1 = readAddress(ADDRESS_DATA_1, BOTTOM_MODE_DEFAULT_POSITION);
+  }
+  else
+  {
+    position1 = BOTTOM_MODE_DEFAULT_POSITION;
+  }
+  writeAddress(ADDRESS_DATA_1, position1);
+}
+
+/**
+ * Bottom mode next action
+ */
+void bottomModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Bottom mode previous action
+ */
+void bottomModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Bottom mode led drawing loop
+ */
+void bottomModeLoop()
+{
+  int half = LED_COUNT / 2;
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i > half)
+    {
+      leds[i] = CRGB::Black;
+    }
+    else
+    {
+      leds[i] = colors[position1];
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   TOP MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize top mode with inital values
+ */
+void topModeInit(boolean fromEeprom)
+{
+  if (fromEeprom)
+  {
+    position1 = readAddress(ADDRESS_DATA_1, TOP_MODE_DEFAULT_POSITION);
+  }
+  else
+  {
+    position1 = TOP_MODE_DEFAULT_POSITION;
+  }
+  writeAddress(ADDRESS_DATA_1, position1);
+}
+
+/**
+ * Top mode next action
+ */
+void topModeNext()
+{
+  flatModeNext();
+}
+
+/**
+ * Top mode previous action
+ */
+void topModePrevious()
+{
+  flatModePrevious();
+}
+
+/**
+ * Top mode led drawing loop
+ */
+void topModeLoop()
+{
+  int half = LED_COUNT / 2;
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i < half)
+    {
+      leds[i] = CRGB::Black;
+    }
+    else
+    {
+      leds[i] = colors[position1];
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Returns current mode identifier
+ */
+inline byte getCurrentMode()
+{
+  return modes[modePosition];
+}
+
+/**
+ * Function to delegate led loop to current mode
+ */
 void ledModeLoop()
 {
+  byte currentMode = getCurrentMode();
   if (currentMode == MODE_FLAT)
   {
     flatModeLoop();
   }
+  else if (currentMode == MODE_BOTTOM)
+  {
+    bottomModeLoop();
+  }
+  else if (currentMode == MODE_TOP)
+  {
+    topModeLoop();
+  }
 }
 
+/**
+ * Function to delegate current mode init state
+ */
 void initCurrentMode(boolean readEeprom)
 {
+  byte currentMode = getCurrentMode();
   if (currentMode == MODE_FLAT)
   {
-    initFlatMode(readEeprom);
+    flatModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_BOTTOM)
+  {
+    bottomModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_TOP)
+  {
+    topModeInit(readEeprom);
   }
 }
 
@@ -92,7 +245,7 @@ void initCurrentMode(boolean readEeprom)
 
 /**
  * Function to increace LED brighness
- **/
+ */
 void increaseBrightness()
 {
   brightness = brightness + 5;
@@ -106,7 +259,7 @@ void increaseBrightness()
 
 /**
  * Function to decreace LED brighness
- **/
+ */
 void decreaseBrightness()
 {
   brightness = brightness - 5;
@@ -120,37 +273,73 @@ void decreaseBrightness()
 
 /**
  * Function triggers next change in the current mode
- **/
+ */
 void previous()
 {
+  byte currentMode = getCurrentMode();
   if (currentMode == MODE_FLAT)
   {
     flatModePrevious();
+  }
+  else if (currentMode == MODE_BOTTOM)
+  {
+    bottomModePrevious();
+  }
+  else if (currentMode == MODE_TOP)
+  {
+    topModePrevious();
   }
 }
 
 /**
  * Function triggers previous change in the current mode
- **/
+ */
 void next()
 {
+  byte currentMode = getCurrentMode();
   if (currentMode == MODE_FLAT)
   {
     flatModeNext();
+  }
+  else if (currentMode == MODE_BOTTOM)
+  {
+    bottomModeNext();
+  }
+  else if (currentMode == MODE_TOP)
+  {
+    topModeNext();
   }
 }
 
 /**
  * Function to switch next color mode
- **/
+ */
 void modeSwitch()
 {
-  // Switch modes
+  modePosition++;
+  if (modePosition >= lengthOf(modes))
+  {
+    modePosition = 0;
+  }
+  writeAddress(ADDRESS_MODE, modePosition);
+
+  Serial.print("Mode switched to: ");
+  Serial.println(modePosition);
+
+  initCurrentMode(false);
+}
+
+/**
+ * Resets current mode settings to the default values
+ */
+void modeReset()
+{
+  initCurrentMode(false);
 }
 
 /**
  * Function to hanle all button ticks
- **/
+ */
 void buttonTick()
 {
   buttonUp.tick();
@@ -158,13 +347,26 @@ void buttonTick()
   buttonPrevious.tick();
   buttonNext.tick();
   buttonOk.tick();
+
+  if (buttonUp.click())
+    increaseBrightness();
+  if (buttonDown.click())
+    decreaseBrightness();
+  if (buttonPrevious.click())
+    previous();
+  if (buttonNext.click())
+    next();
+  if (buttonOk.click())
+    modeSwitch();
+  if (buttonOk.held())
+    modeReset();
 }
 
 /**
  * ----------------------------------------------------------------------------------------------------------------
  * Default setup function
  * ----------------------------------------------------------------------------------------------------------------
- **/
+ */
 void setup()
 {
   Serial.begin(9600);
@@ -174,14 +376,8 @@ void setup()
   FastLED.addLeds<CHIPSET, PIN_LED, COLOR_ORDER>(leds, LED_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(brightness);
 
-  buttonUp.attachClick(increaseBrightness);
-  buttonDown.attachClick(decreaseBrightness);
-  buttonPrevious.attachClick(previous);
-  buttonNext.attachClick(next);
-  buttonOk.attachClick(modeSwitch);
-
   brightness = readAddress(ADDRESS_BRIGHTNESS, BRIGHTNESS_DEFAULT);
-  currentMode = readAddress(ADDRESS_MODE, MODE_DEFAULT);
+  modePosition = readAddress(ADDRESS_MODE, MODE_DEFAULT);
   initCurrentMode(true);
 }
 
@@ -189,7 +385,7 @@ void setup()
  * ----------------------------------------------------------------------------------------------------------------
  * Default loop function
  * ----------------------------------------------------------------------------------------------------------------
- **/
+ */
 void loop()
 {
   buttonTick();
