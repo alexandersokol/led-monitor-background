@@ -521,7 +521,7 @@ void twoColorsModeInit(boolean fromEeprom)
   if (fromEeprom)
   {
     position1 = readAddress(ADDRESS_DATA_1, FLAT_MODE_DEFAULT_POSITION);
-    position1 = readAddress(ADDRESS_DATA_2, FLAT_MODE_DEFAULT_POSITION);
+    position2 = readAddress(ADDRESS_DATA_2, FLAT_MODE_DEFAULT_POSITION);
   }
 }
 
