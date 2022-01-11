@@ -19,6 +19,7 @@ int previousModePosition;
 int brightness;
 
 byte position1 = 0;
+byte position2 = 0;
 byte spotPosition = 0;
 unsigned long lastSpotUpdateTime = 0;
 
@@ -509,6 +510,145 @@ void largeSpotModeLoop()
 }
 
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   TWO COLORS MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize two colors mode with inital values
+ */
+void twoColorsModeInit(boolean fromEeprom)
+{
+  if (fromEeprom)
+  {
+    position1 = readAddress(ADDRESS_DATA_1, FLAT_MODE_DEFAULT_POSITION);
+    position1 = readAddress(ADDRESS_DATA_2, FLAT_MODE_DEFAULT_POSITION);
+  }
+}
+
+/**
+ * Two colors mode next action
+ */
+void twoColorsModeNext()
+{
+  position1++;
+  if (position1 >= lengthOf(colors))
+  {
+    position1 = 0;
+  }
+  writeAddress(ADDRESS_DATA_1, position1);
+  Serial.print("Position1 Increace: ");
+  Serial.println(position1, DEC);
+}
+
+/**
+ * Two colors mode previous action
+ */
+void twoColorsModePrevious()
+{
+  position2++;
+  if (position2 >= lengthOf(colors))
+  {
+    position2 = 0;
+  }
+  writeAddress(ADDRESS_DATA_2, position2);
+  Serial.print("Position2 Increace: ");
+  Serial.println(position2, DEC);
+}
+
+/**
+ * Two colors mode led drawing loop
+ */
+void twoColorsModeLoop()
+{
+  int half = LED_COUNT / 2;
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i >= half)
+    {
+      leds[i] = colors[position2];
+    }
+    else
+    {
+      leds[i] = colors[position1];
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+//----   TWO MOVING COLORS MODE
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
+
+/**
+ * Initialize two moving colors mode with inital values
+ */
+void twoMovingColorsModeInit(boolean fromEeprom)
+{
+  twoColorsModeInit(fromEeprom);
+}
+
+/**
+ * Two colors mode next action
+ */
+void twoMovingColorsModeNext()
+{
+  twoColorsModeNext();
+}
+
+/**
+ * Two colors mode previous action
+ */
+void twoMovingColorsModePrevious()
+{
+  twoColorsModePrevious();
+}
+
+/**
+ * Two colors mode led drawing loop
+ */
+void twoMovingColorsModeLoop()
+{
+  long currentTime = millis();
+  if (lastSpotUpdateTime == 0 || (currentTime - lastSpotUpdateTime) >= TWO_MOVING_COLORS_MODE_DELAY)
+  {
+    lastSpotUpdateTime = currentTime;
+
+    spotPosition++;
+    if (spotPosition >= LED_COUNT)
+    {
+      spotPosition = 0;
+    }
+  }
+
+  byte spotRange0Start = spotPosition;
+  byte spotRange0End = spotPosition + (LED_COUNT / 2);
+
+  byte spotRange1Start = 255;
+  byte spotRange1End = 255;
+
+  if (spotRange0End >= LED_COUNT)
+  {
+    spotRange1Start = 0;
+    spotRange1End = spotRange0End - LED_COUNT;
+  }
+
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    if (i >= spotRange0Start && i <= spotRange0End)
+    {
+      leds[i] = colors[position1];
+    }
+    else if (i >= spotRange1Start && i <= spotRange1End)
+    {
+      leds[i] = colors[position1];
+    }
+    else
+    {
+      leds[i] = colors[position2];
+    }
+  }
+}
+
+//--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 //--------------––--------------––--------------––--------------––--------------––--------------––--------------––
 
 /**
@@ -561,6 +701,14 @@ void ledModeLoop()
   {
     largeSpotModeLoop();
   }
+  else if (currentMode == MODE_TWO_COLORS)
+  {
+    twoColorsModeLoop();
+  }
+  else if (currentMode == MODE_TWO_MOVING_COLORS)
+  {
+    twoMovingColorsModeLoop();
+  }
 }
 
 /**
@@ -604,6 +752,14 @@ void initCurrentMode(boolean readEeprom)
   else if (currentMode == MODE_LARGE_SPOT)
   {
     largeSpotModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_TWO_COLORS)
+  {
+    twoColorsModeInit(readEeprom);
+  }
+  else if (currentMode == MODE_TWO_MOVING_COLORS)
+  {
+    twoMovingColorsModeInit(readEeprom);
   }
 }
 
@@ -680,6 +836,14 @@ void previous()
   {
     largeSpotModePrevious();
   }
+  else if (currentMode == MODE_TWO_COLORS)
+  {
+    twoColorsModePrevious();
+  }
+  else if (currentMode == MODE_TWO_MOVING_COLORS)
+  {
+    twoMovingColorsModePrevious();
+  }
 }
 
 /**
@@ -723,6 +887,14 @@ void next()
   else if (currentMode == MODE_LARGE_SPOT)
   {
     largeSpotModeNext();
+  }
+  else if (currentMode == MODE_TWO_COLORS)
+  {
+    twoColorsModeNext();
+  }
+  else if (currentMode == MODE_TWO_MOVING_COLORS)
+  {
+    twoMovingColorsModeNext();
   }
 }
 

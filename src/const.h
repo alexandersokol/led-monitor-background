@@ -35,6 +35,8 @@
 #define MODE_SMALL_SPOT 6
 #define MODE_MEDIUM_SPOT 7
 #define MODE_LARGE_SPOT 8
+#define MODE_TWO_COLORS 9
+#define MODE_TWO_MOVING_COLORS 10
 
 #define MODE_DEFAULT MODE_FLAT
 
@@ -50,6 +52,8 @@
 #define MEDIUM_SPOT_MODE_DELAY 15
 #define LARGE_SPOT_MODE_DELAY 20
 
+#define TWO_MOVING_COLORS_MODE_DELAY 10
+
 #define lengthOf(x) (sizeof(x) / sizeof(x[0]))
 
 byte modes[] = {
@@ -62,6 +66,8 @@ byte modes[] = {
     MODE_SMALL_SPOT,
     MODE_MEDIUM_SPOT,
     MODE_LARGE_SPOT,
+    MODE_TWO_COLORS,
+    MODE_TWO_MOVING_COLORS
 };
 
 long int colors[] = {
